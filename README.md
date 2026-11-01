@@ -9,6 +9,77 @@ To write a python program to perform stop and wait protocol
 5. If your frames reach the server it will send ACK signal to client
 6. Stop the Program
 ## PROGRAM
+```
+Server Program (server.py)
+import socket
+
+s = socket.socket()
+s.bind(('127.0.0.1', 5000))
+s.listen(1)
+
+print("Server waiting for connection...")
+
+conn, addr = s.accept()
+print("Client connected")
+
+with conn:
+    reader = conn.makefile('r')
+    writer = conn.makefile('w')
+
+    n = int(reader.readline())
+
+    for i in range(1, n + 1):
+        frame = reader.readline().rstrip('\n')
+
+        print("Frame received:", frame)
+
+        writer.write("ACK " + str(i) + "\n")
+        writer.flush()
+
+        print("ACK sent")
+
+    print("All frames received successfully")
+
+s.close()
+
+```
+### CLIENT.PY PROGRAM
+```
+import socket
+
+s = socket.socket()
+s.connect(('127.0.0.1', 5000))
+
+n = int(input("Enter the number of frames: "))
+
+s.sendall((str(n) + "\n").encode())
+
+reader = s.makefile('r')
+
+for i in range(1, n + 1):
+    frame = input("Enter frame " + str(i) + ": ")
+
+    s.sendall((frame + "\n").encode())
+
+    ack = reader.readline().strip()
+
+    print("Acknowledgement received:", ack)
+
+print("All frames sent successfully")
+
+s.close()
+```
 ## OUTPUT
+```
+Enter the number of frames: 3
+Enter frame 1: Hello
+Acknowledgement received: ACK 1
+Enter frame 2: World
+Acknowledgement received: ACK 2
+Enter frame 3: Python
+Acknowledgement received: ACK 3
+All frames sent successfully
+```
+
 ## RESULT
 Thus, python program to perform stop and wait protocol was successfully executed.
